@@ -1,5 +1,8 @@
 const net = require('net');
-
+const name = require('./name');
+const stdin = process.stdin;
+stdin.setRawMode(true);
+stdin.setEncoding('utf8');
 
 const connect = function() {
   const conn = net.createConnection({ 
@@ -8,16 +11,36 @@ const connect = function() {
   });
  
   // interpret incoming data as text
-  
   conn.setEncoding('utf8'); 
   
-  conn.on('data', function (stuff) {
-    console.log('stuff:', stuff)
+  conn.on('connect', () => {
+   // console.log('Successfully connected to game server');
+   console.log(`Name:${name()}`);
   })
-  console.log('Connecting ...');
+  conn.on('data', function(data){
+    console.log(data);
+  })
+  stdin.on('data', (key) => {
+    if (key === '\u0061') {
+      //a
+      conn.write(`Move: left`);
+    }
+    if (key === '\u0073') {
+      //s
+      conn.write(`Move: down`);
+    }
+    if (key === '\u0064') {
+      //d
+      conn.write(`Move: right`);
+    }
+    if (key === '\u0077') {
+      //w
+      conn.write(`Move: up`);
+    }
+  });
   return conn;  
-
 }
+
 module.exports = {
   connect
 };
